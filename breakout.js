@@ -91,7 +91,7 @@ function isGameOveer(world) {
 }
 
 
-  function update() {
+function update() {
     game.physics.arcade.collide(ball, paddle);
     // method of allowing paddle to move but will need to look into on sunday more
     paddle.x = game.input.x || game.world.wodth*0.5;
