@@ -22,7 +22,7 @@ const config = {
 
 
 
-let ball, yellowBricks, redBricks, darkblueBricks, blueBricks, greenBricks, limeBricks, purpleBricks;
+let ball, yellowBricks, redBricks, darkblueBricks, blueBricks, greenBricks, limeBricks, purpleBricks, paddle;
 
 
 const game = new Phaser.Game(config);
@@ -33,6 +33,9 @@ function preload() {
     //Ball
     this.load.image('ball', 'assets/Ball/Ball.png');
     
+    //Paddle
+    game.load.image("paddle", "assets/Paddle/50-breakout-Tiles.png")
+
     //Bricks
     this.load.image('yellowBrick', 'assets/Bricks/Yellow1.png');
     this.load.image('redBrick', 'assets/Bricks/Red1.png');
@@ -47,6 +50,14 @@ function preload() {
   } // Basic function to preload the assest
 function create() {
 
+    //Paddle
+    paddle = game.add.sprite(
+        game.world.width * 0.5, // this is how to position the paddle
+        game.world.height - 5,
+        "paddle",
+    );
+    paddle.anchor.set(0.5,1);
+    game.physics.enable(paddle, Phaser.Physics.arcade);
 
     // Bricks
     yellowBricks = createBrickGroups(this,'yellowBrick', 140);
@@ -75,7 +86,13 @@ function createBrickGroups(scene, key, y) {
     })
 }
 
+function isGameOveer(world) {
+    return ball.body.y > world.bounds.height;
+}
 
 
-
-  function update() {} // Basic function to update the frame NOTE* I kept these the same so for simplicity
+  function update() {
+    game.physics.arcade.collide(ball, paddle);
+    // method of allowing paddle to move but will need to look into on sunday more
+    paddle.x = game.input.x || game.world.wodth*0.5;
+  } // Basic function to update the frame NOTE* I kept these the same so for simplicity
