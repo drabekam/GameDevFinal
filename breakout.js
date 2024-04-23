@@ -23,7 +23,7 @@ const config = {
 const game = new Phaser.Game(config);
 
 //Variables for objects
-let ball, paddle, newBall;
+let ball, paddle;
 
 //Variable to check if game is started or not
 let gameStarted = false;
