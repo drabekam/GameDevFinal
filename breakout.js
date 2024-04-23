@@ -23,27 +23,17 @@ const config = {
 const game = new Phaser.Game(config);
 
 //Variables for objects
-let ball, yellowBricks, redBricks, darkblueBricks, blueBricks, greenBricks, limeBricks, purpleBricks, paddle;
+let ball, paddle;
 
 //Set Score
 let scoreText;
 let score = 0;
 
-
-
-
-
 function preload() {
-    
-
-
-
     //Ball
     this.load.image('ball', 'assets/Ball/Ball.png');
-    
     //Paddle
-    this.load.image("paddle", "assets/Paddle/50-breakout-Tiles.png")
-
+    this.load.image("paddle", "assets/Paddle/50-breakout-Tiles.png");
     //Bricks
     this.load.image('yellowBrick', 'assets/Bricks/Yellow1.png');
     this.load.image('redBrick', 'assets/Bricks/Red1.png');
@@ -52,90 +42,104 @@ function preload() {
     this.load.image('greenBrick', 'assets/Bricks/Green1.png');
     this.load.image('limeBrick', 'assets/Bricks/Lime1.png');
     this.load.image('purpleBrick', 'assets/Bricks/Purple1.png');
+}
 
-    
-
-
-  } // Basic function to preload the assest
 function create() {
-
     // Paddle
-    paddle = this.add.sprite(      //Create Paddle
-        this.cameras.main.width / 2,        //this.camera.main.width uses the the full width of the canvas, so divide by 2 to get half of screen
-        this.cameras.main.height - 50,
-        "paddle",
-    );
+    paddle = this.physics.add.sprite(this.cameras.main.width / 2, this.cameras.main.height - 50, "paddle").setScale(0.3);
+   
 
-    paddle.setScale(.3); //Scake paddle sprite to appropriate size
-    
-    
-    //Ball
-    ball = this.add.sprite(         //Create Ball
-        this.cameras.main.width / 2,
-        this.cameras.main.height / 2,      //this.camera.main.height uses the the full height of the canvas, so divide by 2 to get half of screen
-        "ball"
-    );
-
-    ball.setScale(0.3); //Scale ball
-
+    // Ball
+    ball = this.physics.add.sprite(this.cameras.main.width / 2, this.cameras.main.height / 2, "ball").setScale(0.3);
+    ball.setCollideWorldBounds(true);
+    ball.body.setBounce(1);
+    ball.setVelocity(200, -200); // Set initial velocity
 
     // Bricks
-    yellowBricks = createBrickGroups(this,'yellowBrick', 140);      //Creates bricks and calls createBrickGroups function to create each row 
-    redBricks = createBrickGroups(this,'redBrick', 180);
-    darkblueBricks = createBrickGroups(this,'darkblueBrick', 220);
-    blueBricks = createBrickGroups(this,'blueBrick', 260);
-    greenBricks = createBrickGroups(this,'greenBrick', 300);
-    limeBricks = createBrickGroups(this,'limeBrick', 340);
-    purpleBricks = createBrickGroups(this,'purpleBrick', 380);
+    yellowBricks = createBrickGroups(this, 'yellowBrick', 140);
+    redBricks = createBrickGroups(this, 'redBrick', 180);
+    darkblueBricks = createBrickGroups(this, 'darkblueBrick', 220);
+    blueBricks = createBrickGroups(this, 'blueBrick', 260);
+    greenBricks = createBrickGroups(this, 'greenBrick', 300);
+    limeBricks = createBrickGroups(this, 'limeBrick', 340);
+    purpleBricks = createBrickGroups(this, 'purpleBrick', 380);
 
-    this.physics.add.collider(ball, yellowBricks, hitBrick, null, this);    //Adds collision to the bricks and calls the hitBrick function
-    this.physics.add.collider(ball, redBricks, hitBrick, null, this);
-    this.physics.add.collider(ball, darkblueBricks, hitBrick, null, this);
-    this.physics.add.collider(ball, blueBricks, hitBrick, null, this);
-    this.physics.add.collider(ball, greenBricks, hitBrick, null, this);
-    this.physics.add.collider(ball, limeBricks, hitBrick, null, this);
-    this.physics.add.collider(ball, purpleBricks, hitBrick, null, this);
+    // Collisions
+    this.physics.add.collider(ball, paddle, ballPaddleCollision);
+    this.physics.add.collider(ball, [yellowBricks, redBricks, darkblueBricks, blueBricks, greenBricks, limeBricks, purpleBricks], hitBrick, null, this);
 
+    // Input for paddle
+    this.input.on("pointermove", function(pointer) {
+        paddle.x = pointer.x;
+    });
 
-    
-
-    //Scoring
-    scoreText = this.add.text(this.cameras.main.width / 2, 100, "Points: 0",{   //Adds the initial Score text to the top center of the screen
+    // Scoring
+    scoreText = this.add.text(this.cameras.main.width / 2, 100, "Points: 0", {
         font: "18px Arial",
         fill: "#0095DD",
-    });
-} // basic funtion that runs when everything is ready
+    }).setOrigin(0.5);
+}
 
-function createBrickGroups(scene, key, y) {     //Uses the scene, key, and y value passed from the Create function to condense the creation of each row of bricks
-    return scene.physics.add.group({
+function createBrickGroups(scene, key, y) {
+    let bricksGroup = scene.physics.add.group({
         key: key,
-        repeat: 14,                             //Creates 15 Bricks total
+        repeat: 14,
         setXY: {
-            x: 280,                                                
-            y: y,                           
-            stepX: 96                           //Space between each brick sprite
+            x: 280,
+            y: y,
+            stepX: 96
         },
-        setScale: {                             //Scales the bricks to be an appropriate size
+        setScale: {
             x: 0.25,
             y: 0.33
         }
-    })
+    
+    });
+    bricksGroup.children.iterate(function(child) {
+        child.setImmovable(true); // Ensure bricks don't move when hit
+        child.body.setAllowGravity(false); // Disable gravity for bricks
+        child.body.setCollideWorldBounds(true); // Ensure bricks collide with world bounds
+    });
+
+    return bricksGroup;
 }
 
-function hitBrick(ball, brick) {        //Function for what to do after ball collision with brick
-    brick.kill();                       //Removes the brick from screen
+function hitBrick(ball, brick) {
+    brick.destroy();
+    score += 100;
+    scoreText.setText(`Points: ${score}`);
 
-    //Updating Score
-    Score += 100;                       //Adds 100 to the score for each brick
-    scoreText.setText('Points: ${score}');      //Updates the score text
+   
+    if (ball.body.velocity.y > 0) {
+        ball.setVelocityY(-200); 
+    } else {
+        ball.setVelocityY(200); 
+    }
 }
 
 
-function isGameOveer(world) {
-    return ball.body.y > world.bounds.height;
+function ballPaddleCollision(ball, paddle) {
+    let diff = ball.x - paddle.x;
+
+    // Set a fixed upward velocity for the ball
+    ball.setVelocityY(-300);
+    ball.setVelocityX(10 * diff);
+
 }
+
 
 
 function update() {
+    // Game Over check
+    if (ball.y > this.physics.world.bounds.height) {
+        console.log("Game Over");
+        // You can add game over logic here
+    }
+  
+
+    paddle.body.setImmovable(true);
     
-  } // Basic function to update the frame NOTE* I kept these the same so for simplicity
+}
+
+    
+  
