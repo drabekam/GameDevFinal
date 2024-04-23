@@ -23,7 +23,7 @@ const config = {
 const game = new Phaser.Game(config);
 
 //Variables for objects
-let ball, paddle;
+let ball, paddle, newBall;
 
 //Variable to check if game is started or not
 let gameStarted = false;
@@ -35,6 +35,8 @@ let scoreText;
 let score = 0;
 
 let startGameText, gameOverText, gameWinText;
+
+
 
 function preload() {
     //Ball
@@ -54,7 +56,7 @@ function preload() {
 function create() {
     // Paddle
     paddle = this.physics.add.sprite(this.cameras.main.width / 2, this.cameras.main.height - 50, "paddle").setScale(0.3);
- 
+
 
     // Ball
     ball = this.physics.add.sprite(this.cameras.main.width / 2, this.cameras.main.height / 2, "ball").setScale(0.3);
@@ -133,8 +135,8 @@ function create() {
     
       // Make it invisible until the player wins
     playerWonText.setVisible(false);
-
 }
+
 
 function createBrickGroups(scene, key, y) {
     let bricksGroup = scene.physics.add.group({
@@ -165,7 +167,7 @@ function hitBrick(ball, brick) {
     score += 100;
     scoreText.setText(`Points: ${score}`);
 
-   
+
     if (ball.body.velocity.x == 0) {
         randNum = Math.random(); 
         if (randNum >= 0.5) {
