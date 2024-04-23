@@ -19,68 +19,127 @@ const config = {
         },
     }
 };
- 
- 
- 
-let ball, yellowBricks, redBricks, paddle;
- 
- 
+
 const game = new Phaser.Game(config);
- 
- 
+
+//Variables for objects
+let ball, paddle;
+
+//Set Score
+let scoreText;
+let score = 0;
+
 function preload() {
-    // Scaling items for things that are ran in web browser
-    game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-    game.scale.pageAlignHorizontally = true;
-    game.sacle.pageAlignVertically = true;
-    // creating the paddle
-    game.load.image("paddle", "assets/Paddle/50-breakout-Tiles.png")
+    //Ball
     this.load.image('ball', 'assets/Ball/Ball.png');
+    //Paddle
+    this.load.image("paddle", "assets/Paddle/50-breakout-Tiles.png");
+    //Bricks
     this.load.image('yellowBrick', 'assets/Bricks/Yellow1.png');
     this.load.image('redBrick', 'assets/Bricks/Red1.png');
- 
-    // note this might need to be game instead of this need to research but ran out of time
- 
- 
-  } // Basic function to preload the assest
-  
-  
-  function create() {
-    //might need to add physics items here outisde of the items being loaded
- 
-    // Creating the paddle
- 
-    paddle = game.add.sprite(
-        game.world.width * 0.5, // this is how to position the paddle
-        game.world.height - 5,
-        "paddle",
-    );
-    paddle.anchor.set(0.5,1);
-    game.physics.enable(paddle, Phaser.Physics.arcade);
- 
- 
-    yellowBricks = this.physics.add.group({
-        key: 'yellowBrick',
-        repeat: 9,
+    this.load.image('blueBrick', 'assets/Bricks/Blue1.png');
+    this.load.image('darkblueBrick', 'assets/Bricks/DarkBlue1.png');
+    this.load.image('greenBrick', 'assets/Bricks/Green1.png');
+    this.load.image('limeBrick', 'assets/Bricks/Lime1.png');
+    this.load.image('purpleBrick', 'assets/Bricks/Purple1.png');
+}
+
+function create() {
+    // Paddle
+    paddle = this.physics.add.sprite(this.cameras.main.width / 2, this.cameras.main.height - 50, "paddle").setScale(0.3);
+   
+
+    // Ball
+    ball = this.physics.add.sprite(this.cameras.main.width / 2, this.cameras.main.height / 2, "ball").setScale(0.3);
+    ball.setCollideWorldBounds(true);
+    ball.body.setBounce(1);
+    ball.setVelocity(200, -200); // Set initial velocity
+
+    // Bricks
+    yellowBricks = createBrickGroups(this, 'yellowBrick', 140);
+    redBricks = createBrickGroups(this, 'redBrick', 180);
+    darkblueBricks = createBrickGroups(this, 'darkblueBrick', 220);
+    blueBricks = createBrickGroups(this, 'blueBrick', 260);
+    greenBricks = createBrickGroups(this, 'greenBrick', 300);
+    limeBricks = createBrickGroups(this, 'limeBrick', 340);
+    purpleBricks = createBrickGroups(this, 'purpleBrick', 380);
+
+    // Collisions
+    this.physics.add.collider(ball, paddle, ballPaddleCollision);
+    this.physics.add.collider(ball, [yellowBricks, redBricks, darkblueBricks, blueBricks, greenBricks, limeBricks, purpleBricks], hitBrick, null, this);
+
+    // Input for paddle
+    this.input.on("pointermove", function(pointer) {
+        paddle.x = pointer.x;
+    });
+
+    // Scoring
+    scoreText = this.add.text(this.cameras.main.width / 2, 100, "Points: 0", {
+        font: "18px Arial",
+        fill: "#0095DD",
+    }).setOrigin(0.5);
+}
+
+function createBrickGroups(scene, key, y) {
+    let bricksGroup = scene.physics.add.group({
+        key: key,
+        repeat: 14,
         setXY: {
-            x:430,
-            y: 140,
-            stepX: 115
+            x: 280,
+            y: y,
+            stepX: 96
         },
         setScale: {
             x: 0.25,
             y: 0.33
         }
-    });
     
- 
-  } // basic funtion that runs when everything is ready
+    });
+    bricksGroup.children.iterate(function(child) {
+        child.setImmovable(true); // Ensure bricks don't move when hit
+        child.body.setAllowGravity(false); // Disable gravity for bricks
+        child.body.setCollideWorldBounds(true); // Ensure bricks collide with world bounds
+    });
+
+    return bricksGroup;
+}
+
+function hitBrick(ball, brick) {
+    brick.destroy();
+    score += 100;
+    scoreText.setText(`Points: ${score}`);
+
+   
+    if (ball.body.velocity.y > 0) {
+        ball.setVelocityY(-200); 
+    } else {
+        ball.setVelocityY(200); 
+    }
+}
+
+
+function ballPaddleCollision(ball, paddle) {
+    let diff = ball.x - paddle.x;
+
+    // Set a fixed upward velocity for the ball
+    ball.setVelocityY(-300);
+    ball.setVelocityX(10 * diff);
+
+}
+
+
+
+function update() {
+    // Game Over check
+    if (ball.y > this.physics.world.bounds.height) {
+        console.log("Game Over");
+        // You can add game over logic here
+    }
   
+
+    paddle.body.setImmovable(true);
+    
+}
+
+    
   
-  
-  function update() {
-    game.physics.arcade.collide(ball, paddle);
-    // method of allowing paddle to move but will need to look into on sunday more
-    paddle.x = game.input.x || game.world.wodth*0.5;
- 
-  } // Basic function to update the frame NOTE* I kept these the same so for simplicity

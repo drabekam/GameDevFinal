@@ -9,11 +9,11 @@ to create a brickbreaker game that spawns in blocks and the user hits them with 
 
 ## To Do :
 
-[ ] - Set File Strucutre
+[x] - Set File Strucutre
 
-[ ] - Create Blank canvas for the game and confirm it works
+[x] - Create Blank canvas for the game and confirm it works
 
-[ ] - Find Assests that are going to be needed and store them in correct location
+[x] - Find Assests that are going to be needed and store them in correct location
 
 [ ] - If we need we can also create sounds as well
 
@@ -29,7 +29,7 @@ to create a brickbreaker game that spawns in blocks and the user hits them with 
   
   [ ] - If it hits bricks will need to destroy the bricks
   
-[ ] - Create blocks
+[x] - Create blocks
 
   [ ] - Spawn in blocks on start
   
