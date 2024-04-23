@@ -34,6 +34,8 @@ let cursors;
 let scoreText;
 let score = 0;
 
+let startGameText, gameOverText, gameWinText;
+
 function preload() {
     //Ball
     this.load.image('ball', 'assets/Ball/Ball.png');
@@ -85,6 +87,53 @@ function create() {
 
     cursors = this.input.keyboard.createCursorKeys(); //Keyboard input, takes Up Down Left Right Space and Shift
     this.physics.world.checkCollision.down = false;
+
+    //Text
+    startGameText = this.add.text(
+        this.physics.world.bounds.width / 2,
+        this.physics.world.bounds.height / 2,
+        'Press SPACE to Start the Game',
+        {
+            fontFamily: 'Monaco, Courier, monospace',
+            fontSize: '50px',
+            fill: '#fff'
+        },
+    );
+    startGameText.setOrigin(0.5);
+
+    gameOverText = this.add.text(
+        this.physics.world.bounds.width / 2,
+        this.physics.world.bounds.height / 2,
+        'Game Over',
+        {
+            fontFamily: 'Monaco, Courier, monospace',
+            fontSize: '50px',
+            fill: '#fff'
+        },
+    );
+    
+    gameOverText.setOrigin(0.5);
+    
+      // Make it invisible until the player loses
+    gameOverText.setVisible(false);
+    
+      // Create the game won text
+    playerWonText = this.add.text(
+        this.physics.world.bounds.width / 2,
+        this.physics.world.bounds.height / 2,
+        'You won!',
+        {
+            fontFamily: 'Monaco, Courier, monospace',
+            fontSize: '50px',
+            fill: '#fff'
+        },
+    );
+    
+    playerWonText.setOrigin(0.5);
+    
+      // Make it invisible until the player wins
+    playerWonText.setVisible(false);
+
 }
 
 function createBrickGroups(scene, key, y) {
@@ -136,26 +185,36 @@ function ballPaddleCollision(ball, paddle) {
 
 }
 
+function gameWin() {
+    return yellowBricks.countActive() + redBricks.countActive() +  darkblueBricks.countActive() + blueBricks.countActive() +  greenBricks.countActive() +  limeBricks.countActive() +  purpleBricks.countActive() == 0;
+}
 
 
 function update() {
     //Start Game
     if (!gameStarted) {
         ball.setX(paddle.x);
+        
 
         //Gives Ball initial Y velocity when the Space key is pressed
         if (cursors.space.isDown) {   
             gameStarted = true;
             ball.setVelocityY(-200);
+            startGameText.setVisible(false);
         }
     }
     
     // Game Over check
     if (ball.y > this.physics.world.bounds.height) {
-        console.log("Game Over");
+        gameOverText.setVisible(true);
+        ball.disableBody(true, true);
         // You can add game over logic here
+    } else if (gameWin()) {
+        gameWinText.setVisible(true);
+        ball.disableBody(true, true);
+    } else {
+
     }
-  
 
 
     paddle.body.setImmovable(true);
