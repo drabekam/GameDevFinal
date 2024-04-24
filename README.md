@@ -15,39 +15,30 @@ to create a brickbreaker game that spawns in blocks and the user hits them with 
 
 [x] - Find Assests that are going to be needed and store them in correct location
 
-[ ] - If we need we can also create sounds as well
+[x] - If we need we can also create sounds as well
 
-[ ] - Create Paddle 
+[x] - Create Paddle 
 
-  [ ] - Will need to move with the mouse
+  [x] - Will need to move with the mouse
   
-  [ ] - Will also when impacted with ball will need to bounce the ball - ball can only go up right and left
+  [x] - Will also when impacted with ball will need to bounce the ball - ball can only go up right and left
   
-[ ] - Create Ball
+[x] - Create Ball
 
-  [ ] - When it hits anything it will need to bounce off in any direction
+ [x] - When it hits anything it will need to bounce off in any direction
   
-  [ ] - If it hits bricks will need to destroy the bricks
+  [x] - If it hits bricks will need to destroy the bricks
   
 [x] - Create blocks
 
-  [ ] - Spawn in blocks on start
+  [x] - Spawn in blocks on start
   
-  [ ] - When blocks are destroyed sometimes spawn powerup
+  [x] - When blocks are destroyed sometimes spawn powerup
   
-       - powerups have to be hit with the ball and can only be available for a limited time
+    [x] - powerups have to be hit with the ball and can only be available for a limited time
        
-[ ] - Score Tracker
+[x]] - Score Tracker
 
-  [ ] - When ball is destroyed it adds to the score
-  
-[ ] - Time tracker
-
-  [ ] - Has a count down from a certain time limit
-  
-[ ] - Saves score after game is over
-
-[ ] - On start screen it shows old scores
 
 
 
