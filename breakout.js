@@ -25,16 +25,16 @@ const game = new Phaser.Game(config);
 //Variables for objects
 let ball, paddle;
 
-//Set Score
+//Set Score and initalizing the variables for it
 let scoreText;
 let score = 0;
 
 function preload() {
-    //Ball
+    //preloading the Ball
     this.load.image('ball', 'assets/Ball/Ball.png');
-    //Paddle
+    //preloading the Paddle
     this.load.image("paddle", "assets/Paddle/50-breakout-Tiles.png");
-    //Bricks
+    //preload the Bricks
     this.load.image('yellowBrick', 'assets/Bricks/Yellow1.png');
     this.load.image('redBrick', 'assets/Bricks/Red1.png');
     this.load.image('blueBrick', 'assets/Bricks/Blue1.png');
@@ -42,6 +42,7 @@ function preload() {
     this.load.image('greenBrick', 'assets/Bricks/Green1.png');
     this.load.image('limeBrick', 'assets/Bricks/Lime1.png');
     this.load.image('purpleBrick', 'assets/Bricks/Purple1.png');
+    //preloading the pwoerups
     this.load.image('FastPowerUp', 'assets/Powerups/42-Breakout-Tiles.png')
     this.load.image('DoublePointsPowerUp', 'assets/Powerups/45-Breakout-Tiles.png')
 }
@@ -51,17 +52,17 @@ function create() {
 
     fetchTimeAndUpdateBackground(this);
     
-    // Paddle
+    // creating the Paddle
     paddle = this.physics.add.sprite(this.cameras.main.width / 2, this.cameras.main.height - 50, "paddle").setScale(0.3);
    
 
-    // Ball
+    // creating the Ball
     ball = this.physics.add.sprite(this.cameras.main.width / 2, this.cameras.main.height / 2, "ball").setScale(0.3);
     ball.setCollideWorldBounds(true);
     ball.body.setBounce(1);
-    ball.setVelocity(300, -300); // Set initial velocity
+    ball.setVelocity(300, -300); // Set initial velocity raised to make testing easier can edit here 
 
-    // Bricks
+    // creating the bricks Bricks
     yellowBricks = createBrickGroups(this, 'yellowBrick', 140);
     redBricks = createBrickGroups(this, 'redBrick', 180);
     darkblueBricks = createBrickGroups(this, 'darkblueBrick', 220);
@@ -69,8 +70,6 @@ function create() {
     greenBricks = createBrickGroups(this, 'greenBrick', 300);
     limeBricks = createBrickGroups(this, 'limeBrick', 340);
     purpleBricks = createBrickGroups(this, 'purpleBrick', 380);
-
-    //powerups
 
 
     // Collisions
@@ -116,25 +115,24 @@ function createBrickGroups(scene, key, y) {
 function hitBrick(ball, brick) {
     brick.destroy();
     let pointsEarned = 100;
-    if (doublePointsActive) {
+    if (doublePointsActive) { // if double points is active it multiplies that points by 2
         pointsEarned *= 2;
     }
     score += pointsEarned;
     scoreText.setText(`Points: ${score}`);
 
-    if (Math.random() < 0.30) {  // 30% chance to spawn powerups
-        spawnPowerUp(this, brick.x, brick.y); // Pass 'this' as an argument
+    if (Math.random() < 0.30) {  // 30% chance to spawn powerups moved from 10%
+        spawnPowerUp(this, brick.x, brick.y); 
     }
 
-    // No need to manually set bounce here if it's already set in create()
 }
 
 function spawnPowerUp(scene, x, y) {
     let type = Math.random() < 0.5 ? 'FastPowerUp' : 'DoublePointsPowerUp';
-    let powerUp = scene.physics.add.sprite(x, y, type);  // Use 'scene' instead of 'this'
+    let powerUp = scene.physics.add.sprite(x, y, type);  
     powerUp.setGravityY(50);
     powerUp.setData('type', type);
-    scene.physics.add.overlap(ball, powerUp, activatePowerUp, null, scene);  // Make sure the context is correct here as well
+    scene.physics.add.overlap(ball, powerUp, activatePowerUp, null, scene);
 }
 // function for activating powerups
 
@@ -167,7 +165,7 @@ let originalBallSpeed = { x: 200, y: -200 };
 function increaseBallSpeed() {
     ball.setVelocity(originalBallSpeed.x * 1.25, originalBallSpeed.y * 1.25);
     setTimeout(() => {
-        ball.setVelocity(originalBallSpeed.x, originalBallSpeed.y); // Revert to original speed after 15 seconds
+        ball.setVelocity(originalBallSpeed.x, originalBallSpeed.y);
     }, 15000);
 }
 
@@ -175,7 +173,7 @@ function increaseBallSpeed() {
 function ballPaddleCollision(ball, paddle) {
     let diff = ball.x - paddle.x;
 
-    // Set a fixed upward velocity for the ball
+   
     ball.setVelocityY(-300);
     ball.setVelocityX(10 * diff);
 
@@ -183,14 +181,14 @@ function ballPaddleCollision(ball, paddle) {
 
 // api function
 
-async function fetchTimeAndUpdateBackground(scene) {
-    const url = 'https://worldtimeapi.org/api/ip';  // API endpoint to get time based on user IP
+async function fetchTimeAndUpdateBackground(scene) { // an ansync function does not prevent the excution of other code while waiting on this
+    const url = 'https://worldtimeapi.org/api/ip';  // Gets the time of day based on the IP address that is calling it
     try {
         const response = await fetch(url);
-        if (!response.ok) {
+        if (!response.ok) { // this is checking the response and if it got one
             throw new Error('Failed to fetch the time');
         }
-        const data = await response.json();
+        const data = await response.json(); // This parses the response to get the utc tieme
         const dateTime = new Date(data.utc_datetime);
         const hours = dateTime.getUTCHours();
 
@@ -204,7 +202,7 @@ async function fetchTimeAndUpdateBackground(scene) {
         }
     } catch (error) {
         console.error('Error fetching or processing time:', error);
-        scene.cameras.main.setBackgroundColor('#FFFFFF'); // Default to white on error
+        scene.cameras.main.setBackgroundColor('#FFFFFF'); // Default to white on error to make it easier for error hanelding
     }
 }
 
@@ -213,7 +211,7 @@ async function fetchTimeAndUpdateBackground(scene) {
 function update() {
     // Game Over check if the ball goes below the paddle
     if (ball.y > paddle.y + ball.displayHeight / 2) {
-        this.physics.pause(); // Pause the physics, indicating game over
+        this.physics.pause(); // Pause the physics for the game so that the bvall does not move anymore
         scoreText.setText(`GameOver! Final Score: ${score}`);
         scoreText.setPosition(this.cameras.main.width / 2, this.cameras.main.height / 2);
         scoreText.setOrigin(0.5);
